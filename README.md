@@ -1,4 +1,4 @@
-# <Your Project Name>
+# <FlyRank AI>
 
 > One-line description of what this capstone project does.
 
