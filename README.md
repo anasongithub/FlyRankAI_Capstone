@@ -44,10 +44,10 @@ To run the application locally or on your hosting provider, copy `.env.example` 
 
 ```bash
 # TMDB API (Optional - falls back to rich Unsplash database)
-TMDB_API_KEY=your_tmdb_key_here
+TMDB_API_KEY=
 
 # Anthropic / Claude API (Required for the /ai route in Phase 2)
-ANTHROPIC_API_KEY=your_anthropic_key_here
+ANTHROPIC_API_KEY=
 
 # Local app URL
 NEXT_PUBLIC_APP_URL=http://localhost:3000
