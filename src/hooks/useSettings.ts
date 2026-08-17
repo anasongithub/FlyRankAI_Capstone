@@ -37,9 +37,16 @@ export function useSettings() {
     }
   };
 
+  /** Merge partial fields into the existing settings object. */
+  const updateSettings = (partial: Partial<UserSettings>) => {
+    const merged = { ...settings, ...partial };
+    saveSettings(merged);
+  };
+
   return {
     settings,
     isLoaded,
     saveSettings,
+    updateSettings,
   };
 }
