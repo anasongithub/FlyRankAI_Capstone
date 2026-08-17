@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { X, Star, Heart, Bookmark, Play, Clock, Film, Calendar } from "lucide-react";
+import { X, Star, Heart, Bookmark, Play, Clock, Film, Calendar, Sparkles } from "lucide-react";
 import { Movie } from "../types/movie";
 import { getMovieDetails } from "../services/movieService";
+import Link from "next/link";
 
 interface MovieDetailsModalProps {
   movie: Movie;
@@ -195,7 +196,7 @@ export default function MovieDetailsModal({
               <div className="grid grid-cols-2 gap-2">
                 <button
                   onClick={onToggleWatchlist}
-                  className={`flex items-center justify-center gap-2 py-2.5 rounded-xl border text-xs font-semibold transition-all ${
+                  className={`flex items-center justify-center gap-2 py-2.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
                     isInWatchlist
                       ? "bg-amber-500 border-amber-500 text-black hover:bg-amber-600"
                       : "bg-zinc-800/40 border-zinc-700 hover:border-zinc-600 text-zinc-200"
@@ -207,7 +208,7 @@ export default function MovieDetailsModal({
 
                 <button
                   onClick={onToggleFavorite}
-                  className={`flex items-center justify-center gap-2 py-2.5 rounded-xl border text-xs font-semibold transition-all ${
+                  className={`flex items-center justify-center gap-2 py-2.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
                     isInFavorites
                       ? "bg-rose-500 border-rose-500 text-white hover:bg-rose-600"
                       : "bg-zinc-800/40 border-zinc-700 hover:border-zinc-600 text-zinc-200"
@@ -217,6 +218,14 @@ export default function MovieDetailsModal({
                   {isInFavorites ? "Liked" : "Favorite"}
                 </button>
               </div>
+
+              <Link
+                href={`/movie/${movie.id}`}
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-zinc-850 hover:bg-zinc-800 border border-zinc-800 text-zinc-200 font-semibold text-xs transition-all active:scale-98 cursor-pointer"
+              >
+                <Sparkles className="h-4 w-4 text-violet-400" />
+                View Full AI Insights
+              </Link>
             </div>
           </div>
 

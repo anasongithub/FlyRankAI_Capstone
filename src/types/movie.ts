@@ -24,6 +24,7 @@ export interface UserSettings {
   displayName: string;
   avatarUrl: string;
   tmdbApiKey: string;
+  geminiApiKey?: string;
   notificationsEnabled: boolean;
 }
 

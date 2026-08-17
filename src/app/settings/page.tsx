@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 const settingsSchema = z.object({
   displayName: z.string().min(1, "Name is required").max(50),
   tmdbApiKey: z.string().optional(),
+  geminiApiKey: z.string().optional(),
   avatarUrl: z.string().url("Must be a valid URL").or(z.literal("")).optional(),
 });
 
@@ -29,7 +30,7 @@ export default function SettingsPage() {
 
   const { register, handleSubmit, reset, formState: { errors, isDirty } } = useForm<SettingsForm>({
     resolver: zodResolver(settingsSchema),
-    defaultValues: { displayName: "", tmdbApiKey: "", avatarUrl: "" },
+    defaultValues: { displayName: "", tmdbApiKey: "", geminiApiKey: "", avatarUrl: "" },
   });
 
   // Populate form once settings load from localStorage
@@ -38,6 +39,7 @@ export default function SettingsPage() {
       reset({
         displayName: settings.displayName,
         tmdbApiKey:  settings.tmdbApiKey ?? "",
+        geminiApiKey: settings.geminiApiKey ?? "",
         avatarUrl:   settings.avatarUrl  ?? "",
       });
     }
@@ -47,6 +49,7 @@ export default function SettingsPage() {
     updateSettings({
       displayName: data.displayName,
       tmdbApiKey:  data.tmdbApiKey  || undefined,
+      geminiApiKey: data.geminiApiKey || undefined,
       avatarUrl:   data.avatarUrl   || undefined,
     });
     setSaved(true);
@@ -142,20 +145,35 @@ export default function SettingsPage() {
                   <span>Keys are stored <strong>only in your browser</strong> (localStorage). They are never sent to any server.</span>
                 </div>
 
-                <FieldGroup label="TMDB API Key" error={errors.tmdbApiKey?.message}>
+                <FieldGroup label="TMDB API Key (v3)" error={errors.tmdbApiKey?.message}>
                   <input
                     id="tmdbApiKey"
                     type="password"
                     {...register("tmdbApiKey")}
                     className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-amber-500 transition font-mono"
-                    placeholder="Paste your TMDB v3 API key…"
+                    placeholder="Paste your TMDB v3 API key (e.g. dcc275f...)"
                   />
                 </FieldGroup>
 
-                <p className="text-xs text-zinc-600">
-                  Get a free key at{" "}
-                  <a href="https://www.themoviedb.org/settings/api" target="_blank" rel="noopener noreferrer" className="text-amber-500 underline">
+                <FieldGroup label="Gemini API Key" error={errors.geminiApiKey?.message}>
+                  <input
+                    id="geminiApiKey"
+                    type="password"
+                    {...register("geminiApiKey")}
+                    className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-amber-500 transition font-mono"
+                    placeholder="Paste your Google Gemini API key (e.g. AIzaSy...)"
+                  />
+                </FieldGroup>
+
+                <p className="text-xs text-zinc-600 leading-normal">
+                  • TMDB keys are free at{" "}
+                  <a href="https://www.themoviedb.org/settings/api" target="_blank" rel="noopener noreferrer" className="text-amber-500 underline hover:text-amber-400">
                     themoviedb.org/settings/api
+                  </a>
+                  <br />
+                  • Gemini keys are free at{" "}
+                  <a href="https://aistudio.google.com/" target="_blank" rel="noopener noreferrer" className="text-amber-500 underline hover:text-amber-400">
+                    aistudio.google.com
                   </a>
                 </p>
               </section>

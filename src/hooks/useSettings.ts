@@ -5,6 +5,7 @@ const DEFAULT_SETTINGS: UserSettings = {
   displayName: "Guest Critic",
   avatarUrl: "https://api.dicebear.com/7.x/adventurer/svg?seed=Felix", // fun, clean dynamic avatar link
   tmdbApiKey: "",
+  geminiApiKey: "",
   notificationsEnabled: true,
 };
 
