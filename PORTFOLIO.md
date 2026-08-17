@@ -11,8 +11,8 @@ This document contains the complete, structured portfolio entry for the **Fronte
 ---
 
 ## 2. Live Deployed Application
-*   **Production Deployment**: `https://fly-rank-ai-capstone-muhammad-anas-projects.vercel.app` *(or your custom promoted Vercel URL)*
-*   **Health Dashboard**: `https://fly-rank-ai-capstone-muhammad-anas-projects.vercel.app/health`
+*   **Production Deployment**: `https://fly-rank-ai-capstone.vercel.app`
+*   **Health Dashboard**: `https://fly-rank-ai-capstone.vercel.app/health`
 *   **Accessibility Rating**: WCAG 2.1 AA compliant. All interactive elements have focus rings, correct heading levels, and custom `aria-label` hooks for screen readers.
 
 ---
