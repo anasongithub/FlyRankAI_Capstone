@@ -92,25 +92,7 @@ export default function AIPage() {
         </div>
       </div>
 
-      {/* API Key Missing warning */}
-      {settingsLoaded && !settings.geminiApiKey && (
-        <div className="mb-6 p-4 rounded-xl bg-amber-500/5 border border-amber-500/20 text-amber-300 text-sm flex gap-3 items-start animate-fade-in">
-          <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
-          <div>
-            <p className="font-bold">Gemini API Key Missing</p>
-            <p className="text-zinc-400 mt-1 leading-normal">
-              To request AI recommendations, please add your Google Gemini key in the settings panel. If you don't have one, it's free to get.
-            </p>
-            <Link
-              href="/settings"
-              className="inline-flex items-center gap-1.5 mt-3 text-xs font-bold text-amber-400 hover:text-amber-300 underline"
-            >
-              Go to Settings
-              <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
-          </div>
-        </div>
-      )}
+
 
       {/* Main input console */}
       <div className="p-6 rounded-2xl bg-zinc-900/40 border border-zinc-800/80 mb-8 space-y-4">
