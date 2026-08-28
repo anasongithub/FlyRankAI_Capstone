@@ -2,14 +2,16 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Film, Bookmark, Heart, Cpu, Settings } from "lucide-react";
+import { Film, Bookmark, Heart, Cpu, Settings, MessageSquareText, Layers } from "lucide-react";
 import { useSettings } from "../hooks/useSettings";
 
 const NAV_ITEMS = [
-  { href: "/",          label: "Discover",     icon: Film    },
-  { href: "/watchlist", label: "Watchlist",    icon: Bookmark },
-  { href: "/favorites", label: "Favorites",    icon: Heart   },
-  { href: "/ai",        label: "AI Assistant", icon: Cpu     },
+  { href: "/",           label: "Discover",   icon: Film },
+  { href: "/chat",       label: "Live Chat",  icon: MessageSquareText },
+  { href: "/ai",         label: "Assistant",  icon: Cpu },
+  { href: "/watchlist",  label: "Watchlist",  icon: Bookmark },
+  { href: "/favorites",  label: "Favorites",  icon: Heart },
+  { href: "/playground", label: "A11y Lab",   icon: Layers },
 ] as const;
 
 export default function AppNav() {
