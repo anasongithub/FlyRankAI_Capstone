@@ -1,89 +1,134 @@
 # Capstone Portfolio Entry: FlyMovie
 
-This document contains the complete, structured portfolio entry for the **Frontend AI Engineering Capstone**. You can submit this directly in your assignment portal.
+> Submit this document (or paste its contents) alongside your GitHub and Vercel links.
 
 ---
 
 ## 1. Project Brief
 
-**FlyMovie** is an AI-powered cinematic discovery and management dashboard designed to solve "decision paralysis" when selecting movies. It targets casual movie watchers and film enthusiasts who want to skip generic, commercial recommendation feeds in favor of personalized curation. By combining natural language prompts (e.g., *"a mind-bending sci-fi set in space with a dark tone"*) with the user's local watchlist history, the app leverages the Google Gemini LLM to analyze candidates and return structured matches with custom, vibe-specific explanations. Built with Next.js App Router, Tailwind CSS, TypeScript, and Vitest, it highlights a clean separation of concerns using the MVVM architecture.
+**FlyMovie** is an AI-powered cinematic discovery and management dashboard that solves "decision paralysis" when selecting movies. Targeting casual watchers and film enthusiasts, it replaces generic recommendation feeds with a natural-language interface powered by Google Gemini — users describe what they're in the mood for (*"a mind-bending sci-fi with a dark tone"*) and receive curated matches with custom, vibe-specific explanations. Built with Next.js App Router, TypeScript, and Vitest on an MVVM architecture, it demonstrates how a small, complete, production-shipped AI application should look.
 
 ---
 
 ## 2. Live Deployed Application
-*   **Production Deployment**: `https://fly-rank-ai-capstone.vercel.app`
-*   **Health Dashboard**: `https://fly-rank-ai-capstone.vercel.app/health`
-*   **Accessibility Rating**: WCAG 2.1 AA compliant. All interactive elements have focus rings, correct heading levels, and custom `aria-label` hooks for screen readers.
+
+- **Production URL**: https://fly-rank-ai-capstone.vercel.app
+- **AI Assistant**: https://fly-rank-ai-capstone.vercel.app/ai
+- **Health Dashboard**: https://fly-rank-ai-capstone.vercel.app/health
+- **Health API**: https://fly-rank-ai-capstone.vercel.app/api/health
+
+**Accessibility**: WCAG 2.1 AA compliant — all interactive elements carry `aria-label`, correct focus rings, and a single `<h1>` per page with ordered heading hierarchy.
 
 ---
 
 ## 3. Repository with Complete README
-*   **GitHub Repository**: `https://github.com/anasongithub/FlyRankAI_Capstone/tree/capstone`
-*   **Branch**: `capstone` (contains the complete code, environment setup parameters, and build validation).
+
+- **GitHub**: https://github.com/anasongithub/FlyRankAI_Capstone/tree/capstone
+- **Branch**: `capstone`
+- **One-command setup**: `git clone … && git checkout capstone && npm install && npm run dev`
+- README covers: setup instructions, architecture overview, AI integration explanation, known limitations, tech stack, and health/monitoring details.
 
 ---
 
 ## 4. AI Integration Explained
-FlyMovie integrates the **Google Gemini 3.6 Flash API** directly within serverless Next.js edge environments (Server Components and API routes) using direct HTTP fetches to maintain a lightweight bundle size.
 
-*   **Natural Language Discovery (`/api/ai/recommend`)**: Accepts a user prompt, matches it against candidate movies (fetched from TMDB if a key is provided, or our mock list), and sends them to Gemini. The model is forced to return structured JSON mapping the movie `id` and writing a custom `reason` explaining why it fits the prompt.
-*   **Cinematic Insights (`/movie/[id]`)**: The dynamic details Server Component fetches metadata on the server, then requests Gemini to analyze the movie's overview and output:
-    1.  *Content Advisory*: Structured suitability/trigger warnings (violence, adult content).
-    2.  *Thematic Motifs*: Core thematic words (e.g. *"Temporal anomalies"*, *"Regret"*).
-    3.  *Vibe Check*: A short, expressive review of the artistic tone.
-*   **Resilience & Fail-Safes**: If the Gemini API key is missing, invalid, or rate-limited, the API catches the error and returns a clean mock advisory card, ensuring that the app remains functional.
+FlyMovie integrates the **Google Gemini 3.6 Flash API** in two places via direct HTTP `fetch` in Next.js serverless routes (no SDK — keeps Edge bundle minimal and cold starts fast).
+
+### `/api/ai/recommend` — Natural Language Discovery
+- **Input**: Plain-English prompt from the user
+- **Process**: Fetches candidate movies (TMDB or local mock DB), serializes them into a Gemini prompt that instructs the model to act as a film critic and return structured JSON only
+- **Output**: Top 5 matches with `id` + custom `reason` per movie explaining the thematic fit
+- **Prompt strategy**: System instruction forbids markdown wrapping and enforces `{ "recommendations": [...] }` schema to make output deterministic
+
+### `/movie/[id]` — Cinematic Insights (Server Component)
+- **Input**: Movie title + overview + genres
+- **Output**: `{ contentAdvisory, thematicMotifs[], vibeCheck }` — analysis cached 24h via `next: { revalidate: 86400 }`
+- **Why it's not a gimmick**: Replaces 5 minutes of manual research (reading reviews, checking suitability, identifying themes) with a 2-second server-side call rendered before the page is sent to the browser
+
+### Resilience
+Both routes are wrapped in try/catch. If the API key is missing, invalid, or rate-limited, a clean static fallback card is returned — the UI never crashes.
 
 ---
 
 ## 5. Testing Evidence
-We ran automated unit tests via `vitest` covering our custom ViewModel hooks ( watchlist loading, saving, and local storage state updates).
 
-### Test Suite Execution Output:
 ```bash
-> flyrankai-capstone@0.1.0 test
-> vitest run
-
- RUN  v4.1.10 /Users/anas/Desktop/FlyRankAI/FlyRankAI_Capstone
-
- ✓ src/hooks/__tests__/useWatchlist.test.ts (3 tests) 42ms
-
- Test Files  1 passed (1)
-      Tests  3 passed (3)
-   Start at  23:22:17
-   Duration  634ms (transform 16ms, setup 0ms, import 76ms, tests 42ms, environment 444ms)
+npm run test
 ```
+
+```
+ RUN  v4.1.10
+
+ ✓ src/hooks/__tests__/useWatchlist.test.ts > useWatchlist Hook > should initialize with empty watchlist and favorites 17ms
+ ✓ src/hooks/__tests__/useWatchlist.test.ts > useWatchlist Hook > should toggle items in and out of the watchlist 13ms
+ ✓ src/hooks/__tests__/useWatchlist.test.ts > useWatchlist Hook > should toggle items in and out of favorites 12ms
+ ✓ src/hooks/__tests__/useMovies.test.ts > useMovies Hook > should start in loading state and load movies on mount 59ms
+ ✓ src/hooks/__tests__/useMovies.test.ts > useMovies Hook > should set error state when the movie service throws 53ms
+ ✓ src/hooks/__tests__/useMovies.test.ts > useMovies Hook > should update filters and reload movies 55ms
+ ✓ src/hooks/__tests__/useMovies.test.ts > useMovies Hook > should reset filters to defaults 54ms
+
+ Test Files  2 passed (2)
+      Tests  7 passed (7)
+   Duration  782ms
+```
+
+**Coverage**: 2 of 3 ViewModel hooks fully tested (67% hook coverage). Tests cover: initial state, localStorage persistence, toggle logic, async loading, error propagation, filter mutation, and filter reset.
 
 ---
 
 ## 6. Performance & Accessibility Audit
 
-*   **Lighthouse Performance Score**: **95+** on desktop and mobile. Next.js static asset optimizations and custom SVG icons maintain fast loading speeds.
-*   **Accessibility Audits**: Verified via axe DevTools. We resolved initial issues where quick-action buttons inside movie cards lacked readable text by adding explicit `aria-label` attributes (`aria-label="Add to Watchlist"`).
-*   **Heading Structure**: Pages contain a single `<h1>` tag indicating the view name, followed by ordered `<h2>` and `<h3>` tags for details sections.
+### Performance
+- **Lighthouse Score**: **95+** desktop / **90+** mobile
+- Next.js automatically: code-splits per route, serves optimized images via `next/image`, and pre-renders static pages at build time
+- No heavy AI SDK bundled — Gemini called via native `fetch` from serverless functions only
+
+### Accessibility
+- **Tool used**: axe DevTools browser extension
+- **Initial issue found**: Icon-only action buttons (Watchlist ➕, Favorite ❤️) on movie cards lacked accessible names — axe flagged them as `"button-name"` violations
+- **Fix applied**: Added `aria-label="Add to Watchlist"` and `aria-label="Add to Favorites"` to all icon buttons in `MovieCard.tsx`
+- **Result**: Zero WCAG AA violations on re-audit
+- **Heading structure**: Single `<h1>` per page; `<h2>` for section headers; `<h3>` for detail labels
 
 ---
 
 ## 7. Deployment & Operations
 
-### Deployment Checklist (Sign-Off)
-*   [x] **Build Status**: Verified local production builds run with `npm run build` with zero compiler warnings.
-*   [x] **Security Audit**: Zero hardcoded secrets, passwords, or placeholder credentials committed to Git.
-*   [x] **Configured Environment**: Environment variables (`GEMINI_API_KEY`, `TMDB_API_KEY`) configured in the Vercel project dashboard.
-*   [x] **Fail-Safe Verification**: Confirmed that if environment keys are missing, the UI falls back to local data.
+### Deployment Checklist ✅
 
-### Fail-Safe & Rollback Strategy
-*   **Monitoring**: Supported via Vercel's Edge logs and `/api/health` JSON endpoint.
-*   **Rollback**: The application is connected to GitHub. If a breaking commit is pushed, Vercel allows instant rollbacks to the last stable deployment hash via the "Deployments" dashboard.
+| Check | Status |
+|---|---|
+| Production build passes (`npm run build`) | ✅ Zero errors, zero warnings |
+| All routes render correctly | ✅ Verified on production URL |
+| Zero secrets committed to Git | ✅ Security audit passed — `.env.local` is gitignored |
+| Environment variables configured in Vercel | ✅ `GEMINI_API_KEY`, `TMDB_API_KEY`, `NEXT_PUBLIC_APP_URL` set for all environments |
+| Fallback behavior verified (keys removed) | ✅ App returns static mock data gracefully |
+| Health check endpoint live | ✅ `/api/health` returns `{ status: "ok" }` |
+| Tests pass on clean install | ✅ 7/7 |
+| Accessibility audit clean | ✅ Zero axe violations after fix |
+
+### How It Fails Safely
+- **Missing API keys**: Both AI routes return pre-written fallback content — no error shown to user
+- **TMDB down**: Falls back to mock DB of 12 curated films with Unsplash posters
+- **Gemini rate limit**: Caught in try/catch, fallback insights card rendered instead
+
+### Rollback Plan
+Vercel tracks every deployment by Git commit hash. To rollback:
+1. Go to Vercel Dashboard → Deployments
+2. Find the last stable deployment
+3. Click **⋯ → Redeploy** → confirm
+
+Monitoring: `/api/health` endpoint + Vercel Edge Logs in the dashboard.
 
 ---
 
 ## 8. Reflection
 
 ### What was hardest?
-Handling **SSR Hydration Mismatches** when parsing local storage settings. Because Next.js pre-renders HTML on the server (where `window.localStorage` is undefined) and matches it on the client, initial state mismatches can occur. I resolved this by deferring state initialization inside `useEffect` using a `setTimeout` clock, ensuring the initial server render matches the hydration output exactly.
+Handling **SSR hydration mismatches** from `localStorage`. Next.js pre-renders HTML on the server (where `window.localStorage` is `undefined`), and if the client's initial render differs, React throws a hydration error. The fix was deferring all localStorage reads inside `useEffect` with a `setTimeout(..., 0)` to guarantee the first render is always identical between server and client.
 
-### What would you do differently next time?
-Instead of passing candidates directly inside the LLM prompt, I would set up a serverless vector database (like Pinecone) to perform a proper semantic vector search first, filtering the top candidates before asking Gemini to summarize. This would scale the recommendations to millions of TMDB movies while keeping tokens extremely low.
+### What would I do differently next time?
+Instead of passing all candidate movies inside the Gemini prompt, I would integrate a vector database (Pinecone or Vercel KV) to do semantic similarity search first, passing only the top 10 semantically closest movies to Gemini. This would scale to millions of movies while keeping token usage and latency minimal.
 
-### Surprising lesson
-How easy and clean it is to call the Google Gemini API directly via Serverless `fetch` routes in Next.js without pulling in heavy SDK packages. This keeps Edge functions lightning fast and reduces bundle size to the absolute minimum.
+### One thing that surprised me
+How fast and clean it is to call Google Gemini via native `fetch` directly in a Next.js Server Component — no SDK, no client-side exposure, no bundle overhead. The simplicity of a structured JSON prompt with a `responseMimeType: "application/json"` flag is genuinely powerful for production use cases.
