@@ -24,7 +24,7 @@ This document contains the complete, structured portfolio entry for the **Fronte
 ---
 
 ## 4. AI Integration Explained
-FlyMovie integrates the **Google Gemini 2.0 Flash API** directly within serverless Next.js edge environments (Server Components and API routes) using direct HTTP fetches to maintain a lightweight bundle size.
+FlyMovie integrates the **Google Gemini 3.6 Flash API** directly within serverless Next.js edge environments (Server Components and API routes) using direct HTTP fetches to maintain a lightweight bundle size.
 
 *   **Natural Language Discovery (`/api/ai/recommend`)**: Accepts a user prompt, matches it against candidate movies (fetched from TMDB if a key is provided, or our mock list), and sends them to Gemini. The model is forced to return structured JSON mapping the movie `id` and writing a custom `reason` explaining why it fits the prompt.
 *   **Cinematic Insights (`/movie/[id]`)**: The dynamic details Server Component fetches metadata on the server, then requests Gemini to analyze the movie's overview and output:
