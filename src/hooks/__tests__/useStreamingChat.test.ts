@@ -121,11 +121,11 @@ describe("useStreamingChat Hook (FE-06 Streaming Chat)", () => {
 
     const { result } = renderHook(() => useStreamingChat());
 
-    act(() => {
-      result.current.sendMessage("Test error");
+    await act(async () => {
+      await result.current.sendMessage("Test error");
     });
 
-    await waitFor(() => expect(result.current.isStreaming).toBe(false));
+    expect(result.current.isStreaming).toBe(false);
 
     expect(result.current.error).toBe("Gemini API key is not configured.");
   });
