@@ -60,7 +60,7 @@ describe("useStreamingChat Hook (FE-06 Streaming Chat)", () => {
     expect(result.current.messages).toEqual([]);
     expect(result.current.error).toBeNull();
     expect(result.current.isStreaming).toBe(false);
-    expect(localStorageMock.removeItem).toHaveBeenCalledWith("flymovie_chat_history");
+    expect(localStorageMock.removeItem).toHaveBeenCalledWith("flymovie_chat_history_v2");
   });
 
   it("should handle stopGeneration by resetting streaming flags", () => {

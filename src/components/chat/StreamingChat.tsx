@@ -7,19 +7,20 @@ import {
   Sparkles,
   Trash2,
   ArrowDown,
-  Film,
   Bot,
   User,
   AlertCircle,
   Clapperboard,
+  Wrench,
 } from "lucide-react";
 import { useStreamingChat, ChatMessage } from "../../hooks/useStreamingChat";
+import { ToolCallRenderer } from "./ToolCallRenderer";
 
 const STARTER_PROMPTS = [
-  "Recommend 3 mind-bending sci-fi movies with dark themes",
-  "Explain the lighting and visual style of Blade Runner 2049",
-  "What are Christopher Nolan's signature directorial motifs?",
-  "Suggest a cozy, heartwarming comfort movie for a rainy evening",
+  { label: "Analyze Inception's cinematography", icon: "🎬", desc: "Calls fetchMovieDeepDive tool" },
+  { label: "Compare Inception vs Interstellar", icon: "⚖️", desc: "Calls compareFilms tool" },
+  { label: "Deep dive on The Dark Knight", icon: "🦇", desc: "Generates film dynamics card" },
+  { label: "Suggest a cozy, heartwarming comfort movie", icon: "☕", desc: "Natural language recommendation" },
 ];
 
 export function StreamingChat() {
@@ -28,6 +29,7 @@ export function StreamingChat() {
     input,
     setInput,
     sendMessage,
+    retryTool,
     stopGeneration,
     clearChat,
     isStreaming,
@@ -89,14 +91,14 @@ export function StreamingChat() {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-sm font-extrabold text-white">CineBot Stream</h2>
+              <h2 className="text-sm font-extrabold text-white">CineBot Generative Studio</h2>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                Live SSE
+                Live Tools & Stream
               </span>
             </div>
             <p className="text-[11px] text-zinc-500">
-              Real-time token streaming powered by Google Gemini
+              Generative UI with typed Zod tools & SSE streaming
             </p>
           </div>
         </div>
@@ -123,36 +125,45 @@ export function StreamingChat() {
       >
         {/* Empty state & Starter chips */}
         {messages.length === 0 && (
-          <div className="flex flex-col items-center justify-center h-full text-center py-10 max-w-md mx-auto space-y-6 animate-fade-in">
+          <div className="flex flex-col items-center justify-center h-full text-center py-10 max-w-lg mx-auto space-y-6 animate-fade-in">
             <div className="h-14 w-14 rounded-2xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center text-violet-400">
               <Sparkles className="h-7 w-7" />
             </div>
             <div className="space-y-2">
               <h3 className="text-base font-bold text-zinc-100">
-                Ask CineBot anything about cinema
+                AI Cinematic Consultant with Generative UI
               </h3>
               <p className="text-xs text-zinc-400 leading-relaxed">
-                Experience sub-second token streaming for custom movie recommendations, thematic
-                critiques, and cinematographic explanations.
+                Ask CineBot questions or trigger server-side tools that render interactive cards,
+                comparative charts, and direct watchlist actions.
               </p>
             </div>
 
             {/* Quick Starters */}
             <div className="w-full space-y-2 pt-2 text-left">
               <p className="text-[11px] font-bold text-zinc-500 uppercase tracking-widest text-center">
-                Suggested Prompts
+                Suggested Prompts & Tool Invocations
               </p>
-              <div className="grid grid-cols-1 gap-2">
-                {STARTER_PROMPTS.map((promptText, i) => (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {STARTER_PROMPTS.map((promptObj, i) => (
                   <button
                     key={i}
                     type="button"
-                    onClick={() => sendMessage(promptText)}
+                    onClick={() => sendMessage(promptObj.label)}
                     disabled={isStreaming}
-                    className="p-3 text-left text-xs bg-zinc-950/40 hover:bg-zinc-800/50 border border-zinc-800/80 rounded-xl text-zinc-300 hover:text-white transition flex items-center justify-between group"
+                    className="p-3 text-left bg-zinc-950/40 hover:bg-zinc-800/50 border border-zinc-800/80 rounded-xl text-zinc-300 hover:text-white transition flex flex-col justify-between group gap-1"
                   >
-                    <span className="line-clamp-1">{promptText}</span>
-                    <Send className="h-3 w-3 text-zinc-600 group-hover:text-violet-400 shrink-0 ml-2" />
+                    <div className="flex items-center justify-between w-full">
+                      <span className="text-xs font-semibold flex items-center gap-1.5">
+                        <span>{promptObj.icon}</span>
+                        <span className="line-clamp-1">{promptObj.label}</span>
+                      </span>
+                      <Send className="h-3 w-3 text-zinc-600 group-hover:text-violet-400 shrink-0 ml-2" />
+                    </div>
+                    <span className="text-[10px] text-zinc-500 flex items-center gap-1">
+                      <Wrench className="h-2.5 w-2.5 text-violet-400" />
+                      {promptObj.desc}
+                    </span>
                   </button>
                 ))}
               </div>
@@ -167,7 +178,7 @@ export function StreamingChat() {
           const isEmpty = msg.content.trim().length === 0;
 
           // Render thinking state for empty assistant message during streaming
-          if (isAssistant && isEmpty && isThinking) {
+          if (isAssistant && isEmpty && isThinking && (!msg.tools || msg.tools.length === 0)) {
             return (
               <div key={msg.id} className="flex gap-3 items-start animate-fade-in">
                 <div className="h-8 w-8 rounded-lg bg-violet-600/20 border border-violet-500/30 flex items-center justify-center text-violet-400 shrink-0 mt-0.5">
@@ -175,14 +186,14 @@ export function StreamingChat() {
                 </div>
                 <div className="p-4 bg-zinc-950/60 border border-zinc-800/80 rounded-2xl text-xs text-zinc-400 flex items-center gap-2.5">
                   <span className="h-2 w-2 rounded-full bg-violet-400 animate-ping" />
-                  <span className="font-medium animate-pulse">CineBot is thinking...</span>
+                  <span className="font-medium animate-pulse">CineBot is consulting film database...</span>
                 </div>
               </div>
             );
           }
 
-          if (isAssistant && isEmpty && !isThinking) {
-            return null; // hide if empty and not thinking
+          if (isAssistant && isEmpty && !isThinking && (!msg.tools || msg.tools.length === 0)) {
+            return null;
           }
 
           return (
@@ -203,17 +214,34 @@ export function StreamingChat() {
                 {isUser ? <User className="h-4 w-4" /> : <Bot className="h-4 w-4" />}
               </div>
 
-              {/* Bubble */}
-              <div
-                className={`max-w-[85%] sm:max-w-[78%] p-4 rounded-2xl text-sm leading-relaxed ${
-                  isUser
-                    ? "bg-gradient-to-br from-violet-600 to-indigo-600 text-white shadow-lg shadow-violet-500/10 rounded-tr-none"
-                    : "bg-zinc-950/80 border border-zinc-800/80 text-zinc-200 rounded-tl-none"
-                }`}
-              >
-                <div className="whitespace-pre-wrap font-sans text-xs sm:text-sm">
-                  {msg.content}
-                </div>
+              {/* Bubble & Generative UI Tools */}
+              <div className="max-w-[90%] sm:max-w-[85%] space-y-2">
+                {msg.content.trim().length > 0 && (
+                  <div
+                    className={`p-4 rounded-2xl text-sm leading-relaxed ${
+                      isUser
+                        ? "bg-gradient-to-br from-violet-600 to-indigo-600 text-white shadow-lg shadow-violet-500/10 rounded-tr-none"
+                        : "bg-zinc-950/80 border border-zinc-800/80 text-zinc-200 rounded-tl-none"
+                    }`}
+                  >
+                    <div className="whitespace-pre-wrap font-sans text-xs sm:text-sm">
+                      {msg.content}
+                    </div>
+                  </div>
+                )}
+
+                {/* Generative Tool Parts (4-State Renderer) */}
+                {msg.tools && msg.tools.length > 0 && (
+                  <div className="space-y-3">
+                    {msg.tools.map((tool) => (
+                      <ToolCallRenderer
+                        key={tool.toolCallId}
+                        tool={tool}
+                        onRetry={retryTool}
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           );
@@ -261,7 +289,7 @@ export function StreamingChat() {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               disabled={isStreaming}
-              placeholder="Ask CineBot about films, directors, or tailored recommendations..."
+              placeholder="Ask a question or try 'Analyze Inception' / 'Compare Inception vs Interstellar'..."
               className="w-full px-4 py-3 bg-zinc-950 border border-zinc-800 focus:border-violet-500 rounded-xl text-sm text-white placeholder-zinc-500 focus:outline-none transition resize-none disabled:opacity-60 max-h-32"
               style={{ minHeight: "48px" }}
             />
