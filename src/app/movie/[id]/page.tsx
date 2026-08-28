@@ -60,7 +60,7 @@ Return your response strictly in the following JSON format:
 
 Only output valid JSON. Do not include markdown wraps (like \`\`\`json).`;
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiApiKey}`;
     
     const res = await fetch(url, {
       method: "POST",
@@ -310,7 +310,7 @@ export default async function MovieDetailPage({
 
             {/* Service identifier */}
             <p className="text-[10px] text-zinc-700 font-medium pt-4 border-t border-zinc-800/80">
-              Analysis provided by Google Gemini 1.5 Flash.
+              Analysis provided by Google Gemini 2.0 Flash.
             </p>
           </section>
 

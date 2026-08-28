@@ -80,7 +80,7 @@ ${JSON.stringify(compactCandidates, null, 2)}
 
 Only output valid JSON. Do not include markdown wraps (like \`\`\`json).`;
 
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`;
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiApiKey}`;
 
     const geminiRes = await fetch(geminiUrl, {
       method: "POST",
